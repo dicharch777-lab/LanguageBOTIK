@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language Bot Web App</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+  h1 { text-align: center; color: #333; }
+  button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; }
+  #addWordBtn { background-color: #4CAF50; color: white; }
+  #showWordsBtn { background-color: #2196F3; color: white; }
+  #quizBtn { background-color: #FF9800; color: white; }
+  #wordInput { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
+  #status { margin-top: 10px; font-weight: bold; color: #333; }
+</style>
+</head>
+<body>
+
+<h1>Language Bot Web App</h1>
+
+<!-- Кнопки меню -->
+<button id="addWordBtn">Добавить слово</button>
+<button id="showWordsBtn">Показать слова</button>
+<button id="quizBtn">Викторина</button>
+
+<!-- Форма добавления слова -->
+<div id="addWordForm" style="display:none; margin-top:20px;">
+  <input type="text" id="wordInput" placeholder="word - перевод - пример - часть речи - язык - сложность">
+  <button id="sendWordBtn" style="background-color:#4CAF50; color:white;">Отправить слово</button>
+</div>
+
+<div id="status"></div>
+
+<script>
+  const tg = window.Telegram.WebApp;
+
+  // Показываем форму добавления
+  document.getElementById("addWordBtn").addEventListener("click", () => {
+    document.getElementById("addWordForm").style.display = "block";
+    tg.sendData("add_word:");
+  });
+
+  // Отправка слова боту
+  document.getElementById("sendWordBtn").addEventListener("click", () => {
+    const val = document.getElementById("wordInput").value.trim();
+    if(val) {
+      tg.sendData(val);
+      document.getElementById("status").innerText = "Слово отправлено!";
+      document.getElementById("wordInput").value = "";
+    }
+  });
+
+  // Показать все слова
+  document.getElementById("showWordsBtn").addEventListener("click", () => {
+    tg.sendData("show_words");
+  });
+
+  // Начать викторину
+  document.getElementById("quizBtn").addEventListener("click", () => {
+    tg.sendData("quiz");
+  });
+</script>
+
+</body>
+</html>
