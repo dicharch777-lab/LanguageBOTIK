@@ -13,7 +13,6 @@
   #quizBtn { background-color: #FF9800; color: white; }
   #wordInput { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
   #status { margin-top: 10px; font-weight: bold; color: #333; white-space: pre-line; }
-  #wordsList { margin-top: 10px; white-space: pre-line; }
 </style>
 </head>
 <body>
@@ -32,15 +31,17 @@
 </div>
 
 <div id="status"></div>
-<div id="wordsList"></div>
 
 <script>
   const tg = window.Telegram.WebApp;
 
+  function showStatus(msg) {
+    document.getElementById("status").innerText = msg;
+  }
+
   // Показываем форму добавления
   document.getElementById("addWordBtn").addEventListener("click", () => {
     document.getElementById("addWordForm").style.display = "block";
-    document.getElementById("status").innerText = "";
   });
 
   // Отправка слова боту
@@ -48,7 +49,6 @@
     const val = document.getElementById("wordInput").value.trim();
     if(val) {
       tg.sendData("add_word:" + val);
-      document.getElementById("status").innerText = "Слово отправлено! Ожидайте подтверждения бота...";
       document.getElementById("wordInput").value = "";
     }
   });
@@ -56,34 +56,25 @@
   // Показать все слова
   document.getElementById("showWordsBtn").addEventListener("click", () => {
     tg.sendData("show_words");
-    document.getElementById("status").innerText = "Запрос на список слов отправлен...";
-    document.getElementById("wordsList").innerText = "";
   });
 
   // Начать викторину
   document.getElementById("quizBtn").addEventListener("click", () => {
     tg.sendData("quiz");
-    document.getElementById("status").innerText = "Викторина началась! Ожидайте слово от бота...";
-    document.getElementById("wordsList").innerText = "";
   });
 
-  // Обновление статуса при получении ответа от бота
-  tg.onEvent('web_app_data', function(event) {
-    const data = event.data;
+  // Обработка ответов бота
+  tg.onEvent('web_app_data', function(msg) {
+    const data = msg.data;
     if(data.startsWith("status:")) {
-      const msg = data.replace("status:", "");
-      document.getElementById("status").innerText = msg;
-    }
-    if(data.startsWith("words_list:")) {
-      const list = data.replace("words_list:", "");
-      document.getElementById("wordsList").innerText = list;
-    }
-    if(data.startsWith("quiz_word:")) {
-      const word = data.replace("quiz_word:", "");
-      document.getElementById("status").innerText = "Переведите слово: " + word;
+      showStatus(data.replace("status:", ""));
+    } else if(data.startsWith("words_list:")) {
+      showStatus(data.replace("words_list:", ""));
+    } else if(data.startsWith("quiz:")) {
+      showStatus(data.replace("quiz:", ""));
     }
   });
-</script>
 
+</script>
 </body>
 </html>
