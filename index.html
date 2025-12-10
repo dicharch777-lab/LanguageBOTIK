@@ -31,7 +31,7 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer; border-r
 <div id="status"></div>
 
 <script>
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp;
 
 function sendData(data) {
     tg.sendData(data); // отправляем данные боту
@@ -67,3 +67,4 @@ document.getElementById("quizBtn").onclick = () => {
 
 </body>
 </html>
+
