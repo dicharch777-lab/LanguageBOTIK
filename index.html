@@ -11,6 +11,7 @@
   #addWordBtn { background-color: #4CAF50; color: white; }
   #showWordsBtn { background-color: #2196F3; color: white; }
   #quizBtn { background-color: #FF9800; color: white; }
+  #exitQuizBtn { background-color: #f44336; color: white; display: none; }
   #wordInput { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
   #status { margin-top: 10px; font-weight: bold; color: #333; }
 </style>
@@ -23,6 +24,7 @@
 <button id="addWordBtn">Добавить слово</button>
 <button id="showWordsBtn">Показать слова</button>
 <button id="quizBtn">Викторина</button>
+<button id="exitQuizBtn">Выйти из викторины</button>
 
 <!-- Форма добавления слова -->
 <div id="addWordForm" style="display:none; margin-top:20px;">
@@ -37,7 +39,9 @@
 
   // Показываем форму добавления
   document.getElementById("addWordBtn").addEventListener("click", () => {
+    hideAll();
     document.getElementById("addWordForm").style.display = "block";
+    document.getElementById("status").innerText = "Введите слово в формате и нажмите Отправить";
     tg.sendData("add_word:");
   });
 
@@ -48,18 +52,38 @@
       tg.sendData(val);
       document.getElementById("status").innerText = "Слово отправлено!";
       document.getElementById("wordInput").value = "";
+    } else {
+      document.getElementById("status").innerText = "Введите слово!";
     }
   });
 
   // Показать все слова
   document.getElementById("showWordsBtn").addEventListener("click", () => {
+    hideAll();
+    document.getElementById("status").innerText = "Запрос слов отправлен...";
     tg.sendData("show_words");
   });
 
   // Начать викторину
   document.getElementById("quizBtn").addEventListener("click", () => {
+    hideAll();
+    document.getElementById("exitQuizBtn").style.display = "inline-block";
+    document.getElementById("status").innerText = "Викторина началась!";
     tg.sendData("quiz");
   });
+
+  // Выйти из викторины
+  document.getElementById("exitQuizBtn").addEventListener("click", () => {
+    hideAll();
+    document.getElementById("status").innerText = "Вы вышли из викторины";
+    tg.sendData("exit_quiz");
+  });
+
+  // Функция скрытия блоков
+  function hideAll() {
+    document.getElementById("addWordForm").style.display = "none";
+    document.getElementById("exitQuizBtn").style.display = "none";
+  }
 </script>
 
 </body>
