@@ -5,76 +5,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Language Bot Web App</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-  h1 { text-align: center; color: #333; }
-  button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; }
-  #addWordBtn { background-color: #4CAF50; color: white; }
-  #showWordsBtn { background-color: #2196F3; color: white; }
-  #quizBtn { background-color: #FF9800; color: white; }
-  #wordInput { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
-  #status { margin-top: 10px; font-weight: bold; color: #333; white-space: pre-line; }
+body { font-family: Arial; margin: 20px; background:#f5f5f5; }
+button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer; border-radius:5px; border:none; }
+#addWordBtn { background:#4CAF50; color:white; }
+#showWordsBtn { background:#2196F3; color:white; }
+#quizBtn { background:#FF9800; color:white; }
+#wordInput { width:100%; padding:10px; margin:5px 0; }
+#sendWordBtn { background:#4CAF50; color:white; }
+#status { margin-top:10px; font-weight:bold; }
 </style>
 </head>
 <body>
 
 <h1>Language Bot Web App</h1>
 
-<!-- Кнопки меню -->
 <button id="addWordBtn">Добавить слово</button>
 <button id="showWordsBtn">Показать слова</button>
 <button id="quizBtn">Викторина</button>
 
-<!-- Форма добавления слова -->
 <div id="addWordForm" style="display:none; margin-top:20px;">
   <input type="text" id="wordInput" placeholder="word - перевод - пример - часть речи - язык - сложность">
-  <button id="sendWordBtn" style="background-color:#4CAF50; color:white;">Отправить слово</button>
+  <button id="sendWordBtn">Отправить слово</button>
 </div>
 
 <div id="status"></div>
 
 <script>
-  const tg = window.Telegram.WebApp;
+const tg = window.Telegram.WebApp;
 
-  function showStatus(msg) {
-    document.getElementById("status").innerText = msg;
-  }
+function sendData(data) {
+    tg.sendData(data); // отправляем данные боту
+}
 
-  // Показываем форму добавления
-  document.getElementById("addWordBtn").addEventListener("click", () => {
+document.getElementById("addWordBtn").onclick = () => {
     document.getElementById("addWordForm").style.display = "block";
-  });
+    document.getElementById("status").innerText = "Введите слово и нажмите 'Отправить'";
+    sendData("add_word:"); // уведомление боту, что хотим добавить слово
+};
 
-  // Отправка слова боту
-  document.getElementById("sendWordBtn").addEventListener("click", () => {
+document.getElementById("sendWordBtn").onclick = () => {
     const val = document.getElementById("wordInput").value.trim();
     if(val) {
-      tg.sendData("add_word:" + val);
-      document.getElementById("wordInput").value = "";
+        sendData(val); // отправляем само слово
+        document.getElementById("status").innerText = "Слово отправлено!";
+        document.getElementById("wordInput").value = "";
+    } else {
+        document.getElementById("status").innerText = "Введите слово!";
     }
-  });
+};
 
-  // Показать все слова
-  document.getElementById("showWordsBtn").addEventListener("click", () => {
-    tg.sendData("show_words");
-  });
+document.getElementById("showWordsBtn").onclick = () => {
+    sendData("show_words");
+    document.getElementById("status").innerText = "Запрос слов отправлен...";
+};
 
-  // Начать викторину
-  document.getElementById("quizBtn").addEventListener("click", () => {
-    tg.sendData("quiz");
-  });
-
-  // Обработка ответов бота
-  tg.onEvent('web_app_data', function(msg) {
-    const data = msg.data;
-    if(data.startsWith("status:")) {
-      showStatus(data.replace("status:", ""));
-    } else if(data.startsWith("words_list:")) {
-      showStatus(data.replace("words_list:", ""));
-    } else if(data.startsWith("quiz:")) {
-      showStatus(data.replace("quiz:", ""));
-    }
-  });
-
+document.getElementById("quizBtn").onclick = () => {
+    sendData("quiz");
+    document.getElementById("status").innerText = "Викторина началась!";
+};
 </script>
+
 </body>
 </html>
