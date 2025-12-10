@@ -19,17 +19,21 @@ input, button { padding: 10px; font-size: 16px; margin: 5px 0; }
 <script>
 let tg = window.Telegram.WebApp;
 
+// Когда Web App готов
+tg.ready();
+
+// Растягиваем окно на всю высоту
+tg.expand();
+
 document.getElementById("sendBtn").onclick = () => {
     const text = document.getElementById("msgInput").value.trim();
-    if(!text) {
-        document.getElementById("status").innerText = "Введите текст!";
-        return;
-    }
+    if(!text) return;
+
     // Отправляем данные боту
-    tg.sendData(text);
-    document.getElementById("status").innerText = "Сообщение отправлено!";
-    document.getElementById("msgInput").value = "";
+    tg.sendData(text); // будет поймано в backend через web_app_data
 };
 </script>
+
 </body>
 </html>
+
