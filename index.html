@@ -20,13 +20,11 @@
 
 <h1>Language Bot Web App</h1>
 
-<!-- Кнопки меню -->
 <button id="addWordBtn">Добавить слово</button>
 <button id="showWordsBtn">Показать слова</button>
 <button id="quizBtn">Викторина</button>
 <button id="exitQuizBtn">Выйти из викторины</button>
 
-<!-- Форма добавления слова -->
 <div id="addWordForm" style="display:none; margin-top:20px;">
   <input type="text" id="wordInput" placeholder="word - перевод - пример - часть речи - язык - сложность">
   <button id="sendWordBtn" style="background-color:#4CAF50; color:white;">Отправить слово</button>
@@ -37,19 +35,21 @@
 <script>
   const tg = window.Telegram.WebApp;
 
-  // Показываем форму добавления
+  function sendDataToBot(data) {
+    tg.sendData(JSON.stringify({action: data}));
+  }
+
   document.getElementById("addWordBtn").addEventListener("click", () => {
     hideAll();
     document.getElementById("addWordForm").style.display = "block";
-    document.getElementById("status").innerText = "Введите слово в формате и нажмите Отправить";
-    tg.sendData("add_word:");
+    document.getElementById("status").innerText = "Введите слово и нажмите Отправить";
+    sendDataToBot("add_word");
   });
 
-  // Отправка слова боту
   document.getElementById("sendWordBtn").addEventListener("click", () => {
     const val = document.getElementById("wordInput").value.trim();
     if(val) {
-      tg.sendData(val);
+      sendDataToBot(val);
       document.getElementById("status").innerText = "Слово отправлено!";
       document.getElementById("wordInput").value = "";
     } else {
@@ -57,29 +57,25 @@
     }
   });
 
-  // Показать все слова
   document.getElementById("showWordsBtn").addEventListener("click", () => {
     hideAll();
     document.getElementById("status").innerText = "Запрос слов отправлен...";
-    tg.sendData("show_words");
+    sendDataToBot("show_words");
   });
 
-  // Начать викторину
   document.getElementById("quizBtn").addEventListener("click", () => {
     hideAll();
     document.getElementById("exitQuizBtn").style.display = "inline-block";
     document.getElementById("status").innerText = "Викторина началась!";
-    tg.sendData("quiz");
+    sendDataToBot("quiz");
   });
 
-  // Выйти из викторины
   document.getElementById("exitQuizBtn").addEventListener("click", () => {
     hideAll();
     document.getElementById("status").innerText = "Вы вышли из викторины";
-    tg.sendData("exit_quiz");
+    sendDataToBot("exit_quiz");
   });
 
-  // Функция скрытия блоков
   function hideAll() {
     document.getElementById("addWordForm").style.display = "none";
     document.getElementById("exitQuizBtn").style.display = "none";
