@@ -33,6 +33,7 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer; border-r
 
 <script>
 let tg = window.Telegram?.WebApp;
+tg.expand();
 
 function sendData(data) {
     tg.sendData(data); // отправляем данные боту
