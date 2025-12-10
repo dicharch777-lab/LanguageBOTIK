@@ -40,13 +40,13 @@ function sendData(data) {
 document.getElementById("addWordBtn").onclick = () => {
     document.getElementById("addWordForm").style.display = "block";
     document.getElementById("status").innerText = "Введите слово и нажмите 'Отправить'";
-    sendData("add_word:"); // уведомление боту, что хотим добавить слово
+    sendData("add_word:");
 };
 
 document.getElementById("sendWordBtn").onclick = () => {
     const val = document.getElementById("wordInput").value.trim();
     if(val) {
-        sendData(val); // отправляем само слово
+        sendData(val);
         document.getElementById("status").innerText = "Слово отправлено!";
         document.getElementById("wordInput").value = "";
     } else {
