@@ -2,93 +2,53 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Language Bot</title>
+    <title>Language Learning Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: var(--tg-theme-bg-color, #f5f5f5);
+            background: var(--tg-theme-bg-color, #f4f4f4);
             color: var(--tg-theme-text-color, #000);
-            padding: 15px;
+            padding: 16px;
         }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             margin: 8px 0;
             font-size: 16px;
-            border-radius: 10px;
+            border-radius: 12px;
             border: none;
+            cursor: pointer;
             background: var(--tg-theme-button-color, #0088cc);
             color: var(--tg-theme-button-text-color, #fff);
         }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 6px 0;
-        }
-        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<h2>📘 Language Bot</h2>
+<h2>🤖 Language Learning Bot</h2>
 
-<div id="menu">
-    <button class="btn" onclick="openAdd()">➕ Добавить слово</button>
-    <button class="btn" onclick="showWords()">📚 Показать слова</button>
-    <button class="btn" onclick="quiz()">🎯 Викторина</button>
-</div>
-
-<div id="add" class="hidden">
-    <input id="word" placeholder="Слово">
-    <input id="tr" placeholder="Перевод">
-    <input id="ex" placeholder="Пример">
-    <input id="pos" placeholder="Часть речи">
-    <input id="lang" placeholder="Язык">
-    <input id="diff" type="number" placeholder="Сложность">
-
-    <button class="btn" onclick="submit()">Сохранить</button>
-    <button class="btn" onclick="back()">Назад</button>
-</div>
+<button class="btn" onclick="send('🇺🇸 Учить слова')">🇺🇸 Учить слова</button>
+<button class="btn" onclick="send('🌍 Приветствия')">🌍 Приветствия</button>
+<button class="btn" onclick="send('📚 Мой словарь')">📚 Мой словарь</button>
+<button class="btn" onclick="send('🎯 Викторина')">🎯 Викторина</button>
+<button class="btn" onclick="send('ℹ️ Помощь')">ℹ️ Помощь</button>
 
 <script>
-const tg = Telegram.WebApp;
-tg.expand();
+    const tg = Telegram.WebApp;
+    tg.expand();
 
-function openAdd() {
-    menu(false);
-    add.classList.remove("hidden");
-}
-
-function showWords() {
-    tg.sendData("show_words");
-    tg.close();
-}
-
-function quiz() {
-    tg.sendData("quiz");
-    tg.close();
-}
-
-function submit() {
-    const data = [
-        word.value, tr.value, ex.value,
-        pos.value, lang.value, diff.value
-    ].join(" - ");
-
-    tg.sendData("add_word:" + data);
-    tg.close();
-}
-
-function back() {
-    menu(true);
-    add.classList.add("hidden");
-}
-
-function menu(v) {
-    menu.style.display = v ? "block" : "none";
-}
+    function send(text) {
+        tg.sendData(text);
+        tg.close();
+    }
 </script>
 
 </body>
