@@ -1,54 +1,160 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Language Learning Bot</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: var(--tg-theme-bg-color, #f4f4f4);
-            color: var(--tg-theme-text-color, #000);
-            padding: 16px;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            font-size: 16px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            background: var(--tg-theme-button-color, #0088cc);
-            color: var(--tg-theme-button-text-color, #fff);
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Language Learning App</title>
+<style>
+body { font-family: Arial; padding: 16px; background: #f4f4f4; }
+h2 { text-align: center; }
+.button { display:block; margin: 8px 0; padding: 12px; font-size:16px; width:100%; border:none; border-radius:10px; background:#0088cc; color:white; cursor:pointer; }
+.hidden { display:none; }
+.card { background:white; padding:10px; margin:5px 0; border-radius:8px; }
+</style>
 </head>
 <body>
 
-<h2>🤖 Language Learning Bot</h2>
+<h2>🤖 Language Learning App</h2>
 
-<button class="btn" onclick="send('🇺🇸 Учить слова')">🇺🇸 Учить слова</button>
-<button class="btn" onclick="send('🌍 Приветствия')">🌍 Приветствия</button>
-<button class="btn" onclick="send('📚 Мой словарь')">📚 Мой словарь</button>
-<button class="btn" onclick="send('🎯 Викторина')">🎯 Викторина</button>
-<button class="btn" onclick="send('ℹ️ Помощь')">ℹ️ Помощь</button>
+<div id="menu">
+  <button class="button" onclick="openSection('learn')">🇺🇸 Учить слова</button>
+  <button class="button" onclick="openSection('greetings')">🌍 Приветствия</button>
+  <button class="button" onclick="openSection('dictionary')">📚 Мой словарь</button>
+  <button class="button" onclick="openSection('quiz')">🎯 Викторина</button>
+</div>
+
+<div id="learn" class="hidden">
+  <h3>📚 Выбери язык</h3>
+  <button class="button" onclick="showWords('english')">🇺🇸 Английский</button>
+  <button class="button" onclick="showWords('español')">🇪🇸 Испанский</button>
+  <button class="button" onclick="showWords('deutsch')">🇩🇪 Немецкий</button>
+  <button class="button" onclick="back()">⬅ Назад</button>
+  <div id="wordsList"></div>
+</div>
+
+<div id="greetings" class="hidden">
+  <h3>🌍 Приветствия</h3>
+  <div id="greetList"></div>
+  <button class="button" onclick="back()">⬅ Назад</button>
+</div>
+
+<div id="dictionary" class="hidden">
+  <h3>📚 Мой словарь</h3>
+  <div id="dictList"></div>
+  <button class="button" onclick="back()">⬅ Назад</button>
+</div>
+
+<div id="quiz" class="hidden">
+  <h3>🎯 Викторина</h3>
+  <div id="quizQuestion"></div>
+  <input type="text" id="quizAnswer" placeholder="Введите перевод">
+  <button class="button" onclick="submitAnswer()">Ответить</button>
+  <div id="quizResult"></div>
+  <button class="button" onclick="endQuiz()">Завершить викторину</button>
+</div>
 
 <script>
-    const tg = Telegram.WebApp;
-    tg.expand();
+// Данные
+const vocabulary = {
+  'english': {'привет':'Hello','пока':'Goodbye','спасибо':'Thank you','пожалуйста':'You are welcome','да':'Yes','нет':'No','хорошо':'Good','плохо':'Bad','еда':'Food','вода':'Water','любовь':'Love','дом':'House'},
+  'español': {'привет':'Hola','пока':'Adiós','спасибо':'Gracias','пожалуйста':'De nada','да':'Sí','нет':'No','хорошо':'Bien','плохо':'Mal','еда':'Comida','вода':'Agua','любовь':'Amor','дом':'Casa'},
+  'deutsch': {'привет':'Hallo','пока':'Tschüss','спасибо':'Danke','пожалуйста':'Bitte','да':'Ja','нет':'Nein','хорошо':'Gut','плохо':'Schlecht','еда':'Essen','вода':'Wasser','любовь':'Liebe','дом':'Haus'}
+};
 
-    function send(text) {
-        tg.sendData(text);
-        tg.close();
+const greetings = {'english':'Hello! 🇺🇸','spanish':'¡Hola! 🇪🇸','french':'Bonjour! 🇫🇷','german':'Hallo! 🇩🇪','italian':'Ciao! 🇮🇹','japanese':'こんにちは! 🇯🇵','korean':'안녕하세요! 🇰🇷','chinese':'你好! 🇨🇳','arabic':'مرحبا! 🇸🇦'};
+
+let quizState = {active:false, score:0, total:0, max:10, currentWord:null, lang:null};
+
+// Навигация
+function openSection(id){
+  document.getElementById('menu').classList.add('hidden');
+  ['learn','greetings','dictionary','quiz'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+
+  if(id==='greetings') showGreetings();
+  if(id==='dictionary') showDictionary();
+  if(id==='quiz') startQuiz();
+}
+
+function back(){
+  document.getElementById('menu').classList.remove('hidden');
+  ['learn','greetings','dictionary','quiz'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  document.getElementById('wordsList').innerHTML='';
+}
+
+// Слова
+function showWords(lang){
+  const list = vocabulary[lang];
+  let html='';
+  for(let rus in list){
+    html += `<div class="card">${rus} — ${list[rus]}</div>`;
+  }
+  document.getElementById('wordsList').innerHTML = html;
+}
+
+// Приветствия
+function showGreetings(){
+  let html='';
+  for(let key in greetings){
+    html += `<div class="card">${greetings[key]} — ${key}</div>`;
+  }
+  document.getElementById('greetList').innerHTML=html;
+}
+
+// Словарь
+function showDictionary(){
+  let html='';
+  for(let lang in vocabulary){
+    html += `<b>${lang}</b><br>`;
+    for(let rus in vocabulary[lang]){
+      html += `${rus} — ${vocabulary[lang][rus]}<br>`;
     }
+    html+='<hr>';
+  }
+  document.getElementById('dictList').innerHTML=html;
+}
+
+// Викторина
+function startQuiz(){
+  quizState={active:true,score:0,total:0,max:10,currentWord:null,lang:null};
+  nextQuestion();
+}
+
+function nextQuestion(){
+  const langs = Object.keys(vocabulary);
+  const lang = langs[Math.floor(Math.random()*langs.length)];
+  const words = Object.entries(vocabulary[lang]);
+  const [rus,foreign] = words[Math.floor(Math.random()*words.length)];
+  quizState.currentWord=rus;
+  quizState.lang=lang;
+  document.getElementById('quizQuestion').innerText = `Переведите слово: ${rus} (${lang})`;
+  document.getElementById('quizAnswer').value='';
+  document.getElementById('quizResult').innerText='';
+}
+
+function submitAnswer(){
+  if(!quizState.active) return;
+  const answer = document.getElementById('quizAnswer').value.trim();
+  const correct = vocabulary[quizState.lang][quizState.currentWord];
+  quizState.total++;
+  if(answer.toLowerCase()===correct.toLowerCase()){
+    quizState.score++;
+    document.getElementById('quizResult').innerText = `✅ Верно! Счет: ${quizState.score}/${quizState.total}`;
+  } else {
+    document.getElementById('quizResult').innerText = `❌ Неверно. Правильный ответ: ${correct}. Счет: ${quizState.score}/${quizState.total}`;
+  }
+  if(quizState.total>=quizState.max){
+    endQuiz();
+  } else {
+    setTimeout(nextQuestion,1000);
+  }
+}
+
+function endQuiz(){
+  quizState.active=false;
+  document.getElementById('quizQuestion').innerText = `🎯 Викторина завершена! Итог: ${quizState.score}/${quizState.total}`;
+  document.getElementById('quizAnswer').value='';
+  document.getElementById('quizResult').innerText='';
+}
 </script>
 
 </body>
