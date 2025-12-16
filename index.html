@@ -2,46 +2,147 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LangBot</title>
+    <title>Language Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .btn {
-            display: block;
-            width: 100%;
+            background: var(--tg-theme-bg-color, #f5f5f5);
+            color: var(--tg-theme-text-color, #000);
             padding: 15px;
-            margin: 10px 0;
-            font-size: 18px;
+        }
+
+        h2 {
             text-align: center;
-            background-color: #0088cc;
-            color: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 16px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            background: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #fff);
             cursor: pointer;
         }
-        .btn:hover {
-            background-color: #006699;
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .card {
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Выберите действие:</h1>
-    <button class="btn" onclick="sendData('add_word')">Добавить слово</button>
-    <button class="btn" onclick="sendData('show_words')">Показать слова</button>
-    <button class="btn" onclick="sendData('quiz')">Викторина</button>
 
-    <script>
-        function sendData(action) {
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.sendData(action);
-            } else {
-                alert("Работает только внутри Telegram");
-            }
-        }
-    </script>
+<h2>📘 Language Bot</h2>
+
+<div id="menu">
+    <button class="btn" onclick="openAdd()">➕ Добавить слово</button>
+    <button class="btn" onclick="openWords()">📚 Мои слова</button>
+    <button class="btn" onclick="startQuiz()">🎯 Викторина</button>
+</div>
+
+<!-- Форма добавления -->
+<div id="addForm" class="hidden">
+    <h3>➕ Добавить слово</h3>
+    <input id="word" placeholder="Слово">
+    <input id="translation" placeholder="Перевод">
+    <input id="example" placeholder="Пример">
+    <input id="pos" placeholder="Часть речи">
+    <input id="lang" placeholder="Язык (EN)">
+    <input id="diff" placeholder="Сложность (1-5)" type="number">
+
+    <button class="btn" onclick="submitWord()">Сохранить</button>
+    <button class="btn" onclick="back()">⬅ Назад</button>
+</div>
+
+<!-- Просмотр слов -->
+<div id="words" class="hidden">
+    <h3>📚 Мои слова</h3>
+    <div id="wordsList"></div>
+    <button class="btn" onclick="back()">⬅ Назад</button>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    function openAdd() {
+        menu(false);
+        document.getElementById("addForm").classList.remove("hidden");
+    }
+
+    function openWords() {
+        menu(false);
+        document.getElementById("words").classList.remove("hidden");
+        tg.sendData("get_words"); // запрос слов у бота
+    }
+
+    function startQuiz() {
+        tg.sendData("quiz");
+        tg.close();
+    }
+
+    function submitWord() {
+        const data = [
+            word.value,
+            translation.value,
+            example.value,
+            pos.value,
+            lang.value,
+            diff.value
+        ].join(" - ");
+
+        tg.sendData("add_word:" + data);
+        tg.close();
+    }
+
+    function back() {
+        menu(true);
+        document.getElementById("addForm").classList.add("hidden");
+        document.getElementById("words").classList.add("hidden");
+    }
+
+    function menu(show) {
+        document.getElementById("menu").style.display = show ? "block" : "none";
+    }
+
+    // Получение слов от бота
+    tg.onEvent("message", (msg) => {
+        if (!msg.data || !msg.data.startsWith("words:")) return;
+
+        const words = JSON.parse(msg.data.replace("words:", ""));
+        const container = document.getElementById("wordsList");
+        container.innerHTML = "";
+
+        words.forEach(w => {
+            container.innerHTML += `
+                <div class="card">
+                    <b>${w.word}</b> — ${w.translation}<br>
+                    ${w.example ? "📌 " + w.example + "<br>" : ""}
+                    ${w.part_of_speech || ""} | ${w.language} | ⭐ ${w.difficulty}
+                </div>
+            `;
+        });
+    });
+</script>
+
 </body>
 </html>
