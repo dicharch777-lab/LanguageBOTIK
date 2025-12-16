@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Language Learning Bot</title>
+    <title>Language Learning Bot - Веб-словарь</title>
     <style>
         * {
             margin: 0;
@@ -26,7 +26,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             padding: 30px;
             position: relative;
             overflow: hidden;
@@ -50,51 +50,67 @@
             font-size: 16px;
         }
         
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
         }
         
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            background: #f8f9fa;
             border: none;
-            padding: 18px 24px;
-            border-radius: 12px;
-            font-size: 18px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            color: #666;
             text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        .tab-btn:hover:not(.active) {
+            background: #e9ecef;
         }
         
-        .btn:active {
-            transform: translateY(-1px);
+        .tab-content {
+            display: none;
         }
         
-        .btn-icon {
-            font-size: 22px;
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Форма добавления слова */
         #addWordForm {
             background: #f8f9fa;
             padding: 25px;
             border-radius: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border: 2px solid #e9ecef;
-            display: none;
         }
         
         .form-title {
@@ -159,29 +175,11 @@
             border: 2px solid #e0e0e0;
         }
         
-        .submit-btn:hover {
-            background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
-        }
-        
-        .cancel-btn:hover {
-            background: #e9ecef;
-        }
-        
+        /* Список слов */
         .words-list {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            border: 2px solid #e9ecef;
-            display: none;
-        }
-        
-        .words-title {
-            color: #333;
-            font-size: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
         }
         
         .word-item {
@@ -230,56 +228,44 @@
             border-left: 2px solid #e0e0e0;
         }
         
-        .quiz-container {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
+        /* Статистика */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
             margin-bottom: 25px;
-            border: 2px solid #e9ecef;
-            display: none;
         }
         
-        .quiz-title {
-            color: #333;
-            font-size: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
-        }
-        
-        .question {
+        .stat-card {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
             text-align: center;
-            font-size: 22px;
-            font-weight: 600;
-            color: #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
         }
         
-        .quiz-controls {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
         }
         
-        .back-btn {
-            background: #f8f9fa;
+        .stat-label {
             color: #666;
-            border: 2px solid #e0e0e0;
-            padding: 14px 24px;
+            font-size: 14px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
             border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
-        .back-btn:hover {
-            background: #e9ecef;
-        }
-        
+        /* Сообщения */
         .message {
             padding: 15px;
             border-radius: 10px;
@@ -302,9 +288,9 @@
         }
         
         .loading {
-            display: none;
             text-align: center;
             margin: 20px 0;
+            display: none;
         }
         
         .spinner {
@@ -314,7 +300,7 @@
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 10px;
         }
         
         @keyframes spin {
@@ -322,19 +308,44 @@
             100% { transform: rotate(360deg); }
         }
         
-        .instructions {
-            background: #e8f4f8;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #31708f;
-            border-left: 4px solid #5bc0de;
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
         }
         
-        .instructions h4 {
-            margin-bottom: 8px;
-            color: #31708f;
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .secondary-btn {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e0e0e0;
         }
         
         @media (max-width: 480px) {
@@ -346,9 +357,8 @@
                 font-size: 24px;
             }
             
-            .btn {
-                padding: 16px 20px;
-                font-size: 16px;
+            .tab-buttons {
+                flex-direction: column;
             }
             
             .form-control {
@@ -360,325 +370,292 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 Language Learning Bot</h1>
-            <p>Изучайте иностранные слова с помощью этого бота</p>
+            <h1>📚 Веб-словарь</h1>
+            <p>Управляйте вашим словарем иностранных слов</p>
+        </div>
+        
+        <div class="user-info" id="userInfo">
+            <div>👤 ID пользователя: <span id="userId">Загрузка...</span></div>
+            <div>📅 Слова загружены: <span id="wordCount">0</span></div>
+        </div>
+        
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab('words')">Мои слова</button>
+            <button class="tab-btn" onclick="showTab('add')">Добавить слово</button>
+            <button class="tab-btn" onclick="showTab('stats')">Статистика</button>
         </div>
         
         <div class="message" id="successMessage"></div>
         <div class="message" id="errorMessage"></div>
         
-        <div class="button-container" id="mainMenu">
-            <button class="btn" onclick="showAddWordForm()">
-                <span class="btn-icon">➕</span>
-                Добавить слово
-            </button>
-            <button class="btn" onclick="showWordsList()">
-                <span class="btn-icon">📚</span>
-                Показать слова
-            </button>
-            <button class="btn" onclick="startQuiz()">
-                <span class="btn-icon">🎯</span>
-                Викторина
-            </button>
-        </div>
-        
-        <!-- Форма добавления слова -->
-        <div id="addWordForm">
-            <div class="form-title">Добавить новое слово</div>
-            <form id="wordForm" onsubmit="submitWordForm(event)">
-                <div class="form-group">
-                    <label for="word">Слово на иностранном языке *</label>
-                    <input type="text" id="word" class="form-control" placeholder="Например: apple" required>
-                </div>
-                <div class="form-group">
-                    <label for="translation">Перевод на русский *</label>
-                    <input type="text" id="translation" class="form-control" placeholder="Например: яблоко" required>
-                </div>
-                <div class="form-group">
-                    <label for="example">Пример использования</label>
-                    <input type="text" id="example" class="form-control" placeholder="Например: I eat an apple every day">
-                </div>
-                <div class="form-group">
-                    <label for="partOfSpeech">Часть речи</label>
-                    <select id="partOfSpeech" class="form-control">
-                        <option value="">Выберите часть речи</option>
-                        <option value="noun">Существительное</option>
-                        <option value="verb">Глагол</option>
-                        <option value="adjective">Прилагательное</option>
-                        <option value="adverb">Наречие</option>
-                        <option value="pronoun">Местоимение</option>
-                        <option value="preposition">Предлог</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="language">Язык</label>
-                    <select id="language" class="form-control">
-                        <option value="EN">Английский (EN)</option>
-                        <option value="ES">Испанский (ES)</option>
-                        <option value="DE">Немецкий (DE)</option>
-                        <option value="FR">Французский (FR)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="difficulty">Сложность (1-5)</label>
-                    <input type="number" id="difficulty" class="form-control" min="1" max="5" value="1">
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="form-btn submit-btn">Добавить слово</button>
-                    <button type="button" class="form-btn cancel-btn" onclick="showMainMenu()">Отмена</button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- Список слов -->
-        <div class="words-list" id="wordsList">
-            <div class="words-title">Ваш словарь</div>
-            <div id="wordsContainer"></div>
-            <button class="back-btn" onclick="showMainMenu()">Вернуться в меню</button>
-        </div>
-        
-        <!-- Викторина -->
-        <div class="quiz-container" id="quizContainer">
-            <div class="quiz-title">Викторина</div>
-            <div class="question" id="questionText">Как переводится слово: <span id="quizWord"></span></div>
-            <div class="quiz-controls">
-                <button class="back-btn" onclick="showMainMenu()">Выйти из викторины</button>
+        <!-- Вкладка со словами -->
+        <div class="tab-content active" id="wordsTab">
+            <div class="actions">
+                <button class="action-btn primary-btn" onclick="loadWords()">
+                    🔄 Обновить список
+                </button>
+                <button class="action-btn secondary-btn" onclick="showTab('add')">
+                    ➕ Добавить слово
+                </button>
+            </div>
+            
+            <div class="loading" id="wordsLoading">
+                <div class="spinner"></div>
+                <p>Загрузка слов...</p>
+            </div>
+            
+            <div class="words-list" id="wordsList">
+                <!-- Слова будут загружены здесь -->
             </div>
         </div>
         
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Загрузка...</p>
+        <!-- Вкладка добавления слова -->
+        <div class="tab-content" id="addTab">
+            <div id="addWordForm">
+                <div class="form-title">Добавить новое слово</div>
+                <form id="wordForm" onsubmit="submitWordForm(event)">
+                    <div class="form-group">
+                        <label for="word">Слово на иностранном языке *</label>
+                        <input type="text" id="word" class="form-control" placeholder="Например: apple" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="translation">Перевод на русский *</label>
+                        <input type="text" id="translation" class="form-control" placeholder="Например: яблоко" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="example">Пример использования</label>
+                        <input type="text" id="example" class="form-control" placeholder="Например: I eat an apple every day">
+                    </div>
+                    <div class="form-group">
+                        <label for="partOfSpeech">Часть речи</label>
+                        <select id="partOfSpeech" class="form-control">
+                            <option value="">Выберите часть речи</option>
+                            <option value="noun">Существительное</option>
+                            <option value="verb">Глагол</option>
+                            <option value="adjective">Прилагательное</option>
+                            <option value="adverb">Наречие</option>
+                            <option value="pronoun">Местоимение</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="language">Язык</label>
+                        <select id="language" class="form-control">
+                            <option value="EN">Английский (EN)</option>
+                            <option value="ES">Испанский (ES)</option>
+                            <option value="DE">Немецкий (DE)</option>
+                            <option value="FR">Французский (FR)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="difficulty">Сложность (1-5)</label>
+                        <input type="number" id="difficulty" class="form-control" min="1" max="5" value="1">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="form-btn submit-btn">Добавить слово</button>
+                        <button type="button" class="form-btn cancel-btn" onclick="showTab('words')">Отмена</button>
+                    </div>
+                </form>
+            </div>
         </div>
         
-        <div class="instructions">
-            <h4>📝 Инструкция по использованию:</h4>
-            <p>1. Для добавления слова заполните все поля в форме</p>
-            <p>2. В викторине бот будет задавать вопросы по вашим словам</p>
-            <p>3. Все изменения сохраняются в вашем личном словаре</p>
+        <!-- Вкладка статистики -->
+        <div class="tab-content" id="statsTab">
+            <div class="loading" id="statsLoading">
+                <div class="spinner"></div>
+                <p>Загрузка статистики...</p>
+            </div>
+            
+            <div id="statsContent" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalWords">0</div>
+                        <div class="stat-label">Всего слов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="myWords">0</div>
+                        <div class="stat-label">Мои слова</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="defaultWords">0</div>
+                        <div class="stat-label">Стандартные</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Слова по языкам</h3>
+                    <div id="languagesChart"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading" id="globalLoading">
+            <div class="spinner"></div>
+            <p>Подключение к базе данных...</p>
         </div>
     </div>
 
     <script>
+        // Конфигурация
+        const API_BASE_URL = 'http://localhost:5000/api'; // Измените на ваш сервер
+        let currentUser = null;
+        
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.BackButton.hide();
         
-        let currentSection = 'main';
-        
-        function showMainMenu() {
-            hideAllSections();
-            document.getElementById('mainMenu').style.display = 'flex';
-            currentSection = 'main';
-            clearMessages();
+        // Получаем данные пользователя
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            currentUser = tg.initDataUnsafe.user;
+            document.getElementById('userId').textContent = currentUser.id;
         }
         
-        function showAddWordForm() {
-            hideAllSections();
-            document.getElementById('addWordForm').style.display = 'block';
-            currentSection = 'add';
-            clearMessages();
-        }
-        
-        function showWordsList() {
-            hideAllSections();
-            document.getElementById('wordsList').style.display = 'block';
-            currentSection = 'words';
-            loadWords();
-            clearMessages();
-        }
-        
-        function startQuiz() {
-            hideAllSections();
-            document.getElementById('quizContainer').style.display = 'block';
-            currentSection = 'quiz';
-            tg.sendData("quiz");
-            clearMessages();
+        // Показываем вкладку
+        function showTab(tabName) {
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
             
-            // Отображаем сообщение пользователю
-            document.getElementById('questionText').innerHTML = "Запуск викторины...<br><small>Откройте чат с ботом для прохождения викторины</small>";
-        }
-        
-        function hideAllSections() {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('addWordForm').style.display = 'none';
-            document.getElementById('wordsList').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'none';
-            document.getElementById('loading').style.display = 'none';
-        }
-        
-        function clearMessages() {
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
-        }
-        
-        function showSuccess(message) {
-            const el = document.getElementById('successMessage');
-            el.textContent = message;
-            el.className = 'message success';
-            el.style.display = 'block';
-        }
-        
-        function showError(message) {
-            const el = document.getElementById('errorMessage');
-            el.textContent = message;
-            el.className = 'message error';
-            el.style.display = 'block';
-        }
-        
-        function showLoading() {
-            document.getElementById('loading').style.display = 'block';
-        }
-        
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-        }
-        
-        function submitWordForm(event) {
-            event.preventDefault();
+            // Убираем активный класс у всех кнопок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
             
-            const word = document.getElementById('word').value.trim();
-            const translation = document.getElementById('translation').value.trim();
-            const example = document.getElementById('example').value.trim();
-            const partOfSpeech = document.getElementById('partOfSpeech').value;
-            const language = document.getElementById('language').value;
-            const difficulty = document.getElementById('difficulty').value;
+            // Показываем нужную вкладку
+            document.getElementById(tabName + 'Tab').classList.add('active');
             
-            if (!word || !translation) {
-                showError('Пожалуйста, заполните обязательные поля: слово и перевод');
-                return;
+            // Активируем кнопку
+            document.querySelector(`.tab-btn[onclick*="${tabName}"]`).classList.add('active');
+            
+            // Загружаем данные для вкладки
+            if (tabName === 'words') {
+                loadWords();
+            } else if (tabName === 'stats') {
+                loadStats();
             }
             
-            // Отправляем данные в бота
-            const data = {
-                action: 'add_word',
-                word: word,
-                translation: translation,
-                example: example,
-                partOfSpeech: partOfSpeech,
-                language: language,
-                difficulty: parseInt(difficulty)
-            };
-            
-            tg.sendData(JSON.stringify(data));
-            
-            // Показываем успешное сообщение
-            showSuccess(`Слово "${word}" добавлено в словарь!`);
-            
-            // Очищаем форму
-            document.getElementById('wordForm').reset();
-            
-            // Возвращаем в главное меню через 2 секунды
-            setTimeout(() => {
-                showMainMenu();
-            }, 2000);
-        }
-        
-        function loadWords() {
-            showLoading();
-            
-            // Отправляем запрос на получение слов
-            tg.sendData("show_words");
-            
-            // Имитируем загрузку слов (в реальном приложении здесь будет API запрос)
-            setTimeout(() => {
-                hideLoading();
-                
-                // Пример данных для демонстрации
-                const sampleWords = [
-                    {
-                        word: "apple",
-                        translation: "яблоко",
-                        example: "I eat an apple every day",
-                        partOfSpeech: "noun",
-                        language: "EN",
-                        difficulty: 1
-                    },
-                    {
-                        word: "run",
-                        translation: "бежать",
-                        example: "I run every morning",
-                        partOfSpeech: "verb",
-                        language: "EN",
-                        difficulty: 1
-                    },
-                    {
-                        word: "beautiful",
-                        translation: "красивый",
-                        example: "The city is beautiful at night",
-                        partOfSpeech: "adjective",
-                        language: "EN",
-                        difficulty: 2
-                    }
-                ];
-                
-                const container = document.getElementById('wordsContainer');
-                container.innerHTML = '';
-                
-                if (sampleWords.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; color: #666;">Ваш словарь пуст. Добавьте первое слово!</p>';
-                    return;
-                }
-                
-                sampleWords.forEach(word => {
-                    const wordElement = document.createElement('div');
-                    wordElement.className = 'word-item';
-                    
-                    wordElement.innerHTML = `
-                        <div class="word-header">
-                            <div class="word-text">${word.word}</div>
-                            <div class="word-difficulty">${word.language} • ${'★'.repeat(word.difficulty)}${'☆'.repeat(5-word.difficulty)}</div>
-                        </div>
-                        <div class="word-translation">${word.translation}</div>
-                        ${word.partOfSpeech ? `<div>Часть речи: ${getPartOfSpeechName(word.partOfSpeech)}</div>` : ''}
-                        ${word.example ? `<div class="word-example">${word.example}</div>` : ''}
-                    `;
-                    
-                    container.appendChild(wordElement);
-                });
-            }, 1000);
-        }
-        
-        function getPartOfSpeechName(part) {
-            const names = {
-                'noun': 'Существительное',
-                'verb': 'Глагол',
-                'adjective': 'Прилагательное',
-                'adverb': 'Наречие',
-                'pronoun': 'Местоимение',
-                'preposition': 'Предлог'
-            };
-            return names[part] || part;
-        }
-        
-        // Обработка данных от бота
-        tg.onEvent('webAppDataReceived', (event) => {
-            console.log('Данные получены от бота:', event);
-        });
-        
-        // Закрытие Web App при нажатии на кнопку "Назад" в Telegram
-        tg.onEvent('backButtonClicked', () => {
-            if (currentSection === 'main') {
-                tg.close();
-            } else {
-                showMainMenu();
-            }
-        });
-        
-        // Показываем кнопку "Назад" если не в главном меню
-        function updateBackButton() {
-            if (currentSection !== 'main') {
+            // Показываем кнопку "Назад" если не на главной
+            if (tabName !== 'words') {
                 tg.BackButton.show();
+                tg.onEvent('backButtonClicked', () => showTab('words'));
             } else {
                 tg.BackButton.hide();
             }
         }
         
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', () => {
-            showMainMenu();
-            updateBackButton();
-        });
-    </script>
-</body>
-</html>
+        // Загрузить слова из базы данных
+        async function loadWords() {
+            showLoading('wordsLoading');
+            hideElement('wordsList');
+            
+            try {
+                const chatId = currentUser ? currentUser.id : 0;
+                const response = await fetch(`${API_BASE_URL}/words?chat_id=${chatId}`);
+                const data = await response.json();
+                
+                hideLoading('wordsLoading');
+                
+                if (data.success) {
+                    displayWords(data.words);
+                    document.getElementById('wordCount').textContent = data.words.length;
+                } else {
+                    showError('Ошибка при загрузке слов');
+                }
+            } catch (error) {
+                hideLoading('wordsLoading');
+                showError('Не удалось подключиться к серверу');
+                console.error('Ошибка:', error);
+            }
+        }
+        
+        // Отобразить слова
+        function displayWords(words) {
+            const container = document.getElementById('wordsList');
+            container.innerHTML = '';
+            
+            if (words.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <h3>Ваш словарь пуст</h3>
+                        <p>Добавьте первое слово для изучения</p>
+                        <button class="action-btn primary-btn" onclick="showTab('add')" style="margin-top: 20px;">
+                            ➕ Добавить слово
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            words.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'word-item';
+                
+                // Определяем цвет по сложности
+                const difficultyColors = ['#4CAF50', '#8BC34A', '#FFC107', '#FF9800', '#F44336'];
+                const difficultyColor = difficultyColors[word.difficulty - 1] || '#667eea';
+                
+                wordElement.style.borderLeftColor = difficultyColor;
+                
+                wordElement.innerHTML = `
+                    <div class="word-header">
+                        <div class="word-text">${word.word}</div>
+                        <div class="word-difficulty" style="background: ${difficultyColor}">
+                            ${word.language} • ${'★'.repeat(word.difficulty)}${'☆'.repeat(5 - word.difficulty)}
+                        </div>
+                    </div>
+                    <div class="word-translation">${word.translation}</div>
+                    ${word.part_of_speech ? `<div><small>Часть речи: ${getPartOfSpeechName(word.part_of_speech)}</small></div>` : ''}
+                    ${word.example ? `<div class="word-example">"${word.example}"</div>` : ''}
+                `;
+                
+                container.appendChild(wordElement);
+            });
+            
+            showElement('wordsList');
+        }
+        
+        // Загрузить статистику
+        async function loadStats() {
+            showLoading('statsLoading');
+            hideElement('statsContent');
+            
+            try {
+                const chatId = currentUser ? currentUser.id : 0;
+                const response = await fetch(`${API_BASE_URL}/stats?chat_id=${chatId}`);
+                const data = await response.json();
+                
+                hideLoading('statsLoading');
+                
+                if (data.success) {
+                    displayStats(data.stats);
+                    showElement('statsContent');
+                } else {
+                    showError('Ошибка при загрузке статистики');
+                }
+            } catch (error) {
+                hideLoading('statsLoading');
+                showError('Не удалось загрузить статистику');
+                console.error('Ошибка:', error);
+            }
+        }
+        
+        // Отобразить статистику
+        function displayStats(stats) {
+            // Общие цифры
+            document.getElementById('totalWords').textContent = stats.total_words;
+            document.getElementById('myWords').textContent = stats.total_words; // Можно уточнить логику
+            document.getElementById('defaultWords').textContent = 6; // Стандартные слова
+            
+            // Диаграмма по языкам
+            const languagesChart = document.getElementById('languagesChart');
+            if (Object.keys(stats.by_language).length > 0) {
+                let chartHTML = '<ul style="list-style: none; padding: 0;">';
+                for (const [lang, count] of Object.entries(stats.by_language)) {
+                    const percentage = (count / stats.total_words * 100).toFixed(1);
+                    chartHTML += `
+                        <li style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>${getLanguageName(lang)}</span>
+                                <span>${count} слов (${percentage}%)
