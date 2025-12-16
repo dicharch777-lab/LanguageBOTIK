@@ -2,69 +2,46 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Language Bot</title>
-
-    <!-- Telegram WebApp SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangBot</title>
     <style>
         body {
-            margin: 0;
-            padding: 20px;
             font-family: Arial, sans-serif;
-            background: var(--tg-theme-bg-color, #f5f5f5);
-            color: var(--tg-theme-text-color, #000);
+            padding: 20px;
+            background-color: #f4f4f4;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
         .btn {
+            display: block;
             width: 100%;
             padding: 15px;
             margin: 10px 0;
             font-size: 18px;
+            text-align: center;
+            background-color: #0088cc;
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
-            background: var(--tg-theme-button-color, #0088cc);
-            color: var(--tg-theme-button-text-color, #fff);
         }
-
-        .btn:active {
-            opacity: 0.8;
+        .btn:hover {
+            background-color: #006699;
         }
     </style>
 </head>
 <body>
+    <h1>Выберите действие:</h1>
+    <button class="btn" onclick="sendData('add_word')">Добавить слово</button>
+    <button class="btn" onclick="sendData('show_words')">Показать слова</button>
+    <button class="btn" onclick="sendData('quiz')">Викторина</button>
 
-<h1>📘 Language Bot</h1>
-
-<button class="btn" onclick="addWord()">➕ Добавить слово</button>
-<button class="btn" onclick="showWords()">📚 Показать слова</button>
-<button class="btn" onclick="startQuiz()">🎯 Викторина</button>
-
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand(); // разворачивает WebApp на весь экран
-
-    function addWord() {
-        tg.sendData("add_word:");
-        tg.close();
-    }
-
-    function showWords() {
-        tg.sendData("show_words");
-        tg.close();
-    }
-
-    function startQuiz() {
-        tg.sendData("quiz");
-        tg.close();
-    }
-</script>
-
+    <script>
+        function sendData(action) {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.sendData(action);
+            } else {
+                alert("Работает только внутри Telegram");
+            }
+        }
+    </script>
 </body>
 </html>
