@@ -1,39 +1,684 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Test Telegram Web App</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-body { font-family: Arial; padding: 20px; }
-input, button { padding: 10px; font-size: 16px; margin: 5px 0; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Learning Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 24px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-icon {
+            font-size: 22px;
+        }
+        
+        #addWordForm {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+            display: none;
+        }
+        
+        .form-title {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .form-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .cancel-btn {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+        }
+        
+        .cancel-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .words-list {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+            display: none;
+        }
+        
+        .words-title {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .word-item {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .word-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .word-difficulty {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .word-translation {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .word-example {
+            color: #888;
+            font-style: italic;
+            font-size: 15px;
+            margin-top: 5px;
+            padding-left: 10px;
+            border-left: 2px solid #e0e0e0;
+        }
+        
+        .quiz-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+            display: none;
+        }
+        
+        .quiz-title {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .question {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .quiz-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .back-btn {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #31708f;
+            border-left: 4px solid #5bc0de;
+        }
+        
+        .instructions h4 {
+            margin-bottom: 8px;
+            color: #31708f;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .btn {
+                padding: 16px 20px;
+                font-size: 16px;
+            }
+            
+            .form-control {
+                padding: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-<h2>Telegram Web App Test</h2>
-<input type="text" id="msgInput" placeholder="Введите сообщение">
-<button id="sendBtn">Отправить боту</button>
-<div id="status"></div>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Language Learning Bot</h1>
+            <p>Изучайте иностранные слова с помощью этого бота</p>
+        </div>
+        
+        <div class="message" id="successMessage"></div>
+        <div class="message" id="errorMessage"></div>
+        
+        <div class="button-container" id="mainMenu">
+            <button class="btn" onclick="showAddWordForm()">
+                <span class="btn-icon">➕</span>
+                Добавить слово
+            </button>
+            <button class="btn" onclick="showWordsList()">
+                <span class="btn-icon">📚</span>
+                Показать слова
+            </button>
+            <button class="btn" onclick="startQuiz()">
+                <span class="btn-icon">🎯</span>
+                Викторина
+            </button>
+        </div>
+        
+        <!-- Форма добавления слова -->
+        <div id="addWordForm">
+            <div class="form-title">Добавить новое слово</div>
+            <form id="wordForm" onsubmit="submitWordForm(event)">
+                <div class="form-group">
+                    <label for="word">Слово на иностранном языке *</label>
+                    <input type="text" id="word" class="form-control" placeholder="Например: apple" required>
+                </div>
+                <div class="form-group">
+                    <label for="translation">Перевод на русский *</label>
+                    <input type="text" id="translation" class="form-control" placeholder="Например: яблоко" required>
+                </div>
+                <div class="form-group">
+                    <label for="example">Пример использования</label>
+                    <input type="text" id="example" class="form-control" placeholder="Например: I eat an apple every day">
+                </div>
+                <div class="form-group">
+                    <label for="partOfSpeech">Часть речи</label>
+                    <select id="partOfSpeech" class="form-control">
+                        <option value="">Выберите часть речи</option>
+                        <option value="noun">Существительное</option>
+                        <option value="verb">Глагол</option>
+                        <option value="adjective">Прилагательное</option>
+                        <option value="adverb">Наречие</option>
+                        <option value="pronoun">Местоимение</option>
+                        <option value="preposition">Предлог</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="language">Язык</label>
+                    <select id="language" class="form-control">
+                        <option value="EN">Английский (EN)</option>
+                        <option value="ES">Испанский (ES)</option>
+                        <option value="DE">Немецкий (DE)</option>
+                        <option value="FR">Французский (FR)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="difficulty">Сложность (1-5)</label>
+                    <input type="number" id="difficulty" class="form-control" min="1" max="5" value="1">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="form-btn submit-btn">Добавить слово</button>
+                    <button type="button" class="form-btn cancel-btn" onclick="showMainMenu()">Отмена</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Список слов -->
+        <div class="words-list" id="wordsList">
+            <div class="words-title">Ваш словарь</div>
+            <div id="wordsContainer"></div>
+            <button class="back-btn" onclick="showMainMenu()">Вернуться в меню</button>
+        </div>
+        
+        <!-- Викторина -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="quiz-title">Викторина</div>
+            <div class="question" id="questionText">Как переводится слово: <span id="quizWord"></span></div>
+            <div class="quiz-controls">
+                <button class="back-btn" onclick="showMainMenu()">Выйти из викторины</button>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Загрузка...</p>
+        </div>
+        
+        <div class="instructions">
+            <h4>📝 Инструкция по использованию:</h4>
+            <p>1. Для добавления слова заполните все поля в форме</p>
+            <p>2. В викторине бот будет задавать вопросы по вашим словам</p>
+            <p>3. Все изменения сохраняются в вашем личном словаре</p>
+        </div>
+    </div>
 
-<script>
-let tg = window.Telegram.WebApp;
-
-// Когда Web App готов
-tg.ready();
-
-// Растягиваем окно на всю высоту
-tg.expand();
-
-document.getElementById("sendBtn").onclick = () => {
-    const text = document.getElementById("msgInput").value.trim();
-    if(!text) return;
-
-    // Отправляем данные боту
-    tg.sendData(text); // будет поймано в backend через web_app_data
-};
-</script>
-
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let currentSection = 'main';
+        
+        function showMainMenu() {
+            hideAllSections();
+            document.getElementById('mainMenu').style.display = 'flex';
+            currentSection = 'main';
+            clearMessages();
+        }
+        
+        function showAddWordForm() {
+            hideAllSections();
+            document.getElementById('addWordForm').style.display = 'block';
+            currentSection = 'add';
+            clearMessages();
+        }
+        
+        function showWordsList() {
+            hideAllSections();
+            document.getElementById('wordsList').style.display = 'block';
+            currentSection = 'words';
+            loadWords();
+            clearMessages();
+        }
+        
+        function startQuiz() {
+            hideAllSections();
+            document.getElementById('quizContainer').style.display = 'block';
+            currentSection = 'quiz';
+            tg.sendData("quiz");
+            clearMessages();
+            
+            // Отображаем сообщение пользователю
+            document.getElementById('questionText').innerHTML = "Запуск викторины...<br><small>Откройте чат с ботом для прохождения викторины</small>";
+        }
+        
+        function hideAllSections() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('addWordForm').style.display = 'none';
+            document.getElementById('wordsList').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function clearMessages() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.className = 'message success';
+            el.style.display = 'block';
+        }
+        
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.className = 'message error';
+            el.style.display = 'block';
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function submitWordForm(event) {
+            event.preventDefault();
+            
+            const word = document.getElementById('word').value.trim();
+            const translation = document.getElementById('translation').value.trim();
+            const example = document.getElementById('example').value.trim();
+            const partOfSpeech = document.getElementById('partOfSpeech').value;
+            const language = document.getElementById('language').value;
+            const difficulty = document.getElementById('difficulty').value;
+            
+            if (!word || !translation) {
+                showError('Пожалуйста, заполните обязательные поля: слово и перевод');
+                return;
+            }
+            
+            // Отправляем данные в бота
+            const data = {
+                action: 'add_word',
+                word: word,
+                translation: translation,
+                example: example,
+                partOfSpeech: partOfSpeech,
+                language: language,
+                difficulty: parseInt(difficulty)
+            };
+            
+            tg.sendData(JSON.stringify(data));
+            
+            // Показываем успешное сообщение
+            showSuccess(`Слово "${word}" добавлено в словарь!`);
+            
+            // Очищаем форму
+            document.getElementById('wordForm').reset();
+            
+            // Возвращаем в главное меню через 2 секунды
+            setTimeout(() => {
+                showMainMenu();
+            }, 2000);
+        }
+        
+        function loadWords() {
+            showLoading();
+            
+            // Отправляем запрос на получение слов
+            tg.sendData("show_words");
+            
+            // Имитируем загрузку слов (в реальном приложении здесь будет API запрос)
+            setTimeout(() => {
+                hideLoading();
+                
+                // Пример данных для демонстрации
+                const sampleWords = [
+                    {
+                        word: "apple",
+                        translation: "яблоко",
+                        example: "I eat an apple every day",
+                        partOfSpeech: "noun",
+                        language: "EN",
+                        difficulty: 1
+                    },
+                    {
+                        word: "run",
+                        translation: "бежать",
+                        example: "I run every morning",
+                        partOfSpeech: "verb",
+                        language: "EN",
+                        difficulty: 1
+                    },
+                    {
+                        word: "beautiful",
+                        translation: "красивый",
+                        example: "The city is beautiful at night",
+                        partOfSpeech: "adjective",
+                        language: "EN",
+                        difficulty: 2
+                    }
+                ];
+                
+                const container = document.getElementById('wordsContainer');
+                container.innerHTML = '';
+                
+                if (sampleWords.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666;">Ваш словарь пуст. Добавьте первое слово!</p>';
+                    return;
+                }
+                
+                sampleWords.forEach(word => {
+                    const wordElement = document.createElement('div');
+                    wordElement.className = 'word-item';
+                    
+                    wordElement.innerHTML = `
+                        <div class="word-header">
+                            <div class="word-text">${word.word}</div>
+                            <div class="word-difficulty">${word.language} • ${'★'.repeat(word.difficulty)}${'☆'.repeat(5-word.difficulty)}</div>
+                        </div>
+                        <div class="word-translation">${word.translation}</div>
+                        ${word.partOfSpeech ? `<div>Часть речи: ${getPartOfSpeechName(word.partOfSpeech)}</div>` : ''}
+                        ${word.example ? `<div class="word-example">${word.example}</div>` : ''}
+                    `;
+                    
+                    container.appendChild(wordElement);
+                });
+            }, 1000);
+        }
+        
+        function getPartOfSpeechName(part) {
+            const names = {
+                'noun': 'Существительное',
+                'verb': 'Глагол',
+                'adjective': 'Прилагательное',
+                'adverb': 'Наречие',
+                'pronoun': 'Местоимение',
+                'preposition': 'Предлог'
+            };
+            return names[part] || part;
+        }
+        
+        // Обработка данных от бота
+        tg.onEvent('webAppDataReceived', (event) => {
+            console.log('Данные получены от бота:', event);
+        });
+        
+        // Закрытие Web App при нажатии на кнопку "Назад" в Telegram
+        tg.onEvent('backButtonClicked', () => {
+            if (currentSection === 'main') {
+                tg.close();
+            } else {
+                showMainMenu();
+            }
+        });
+        
+        // Показываем кнопку "Назад" если не в главном меню
+        function updateBackButton() {
+            if (currentSection !== 'main') {
+                tg.BackButton.show();
+            } else {
+                tg.BackButton.hide();
+            }
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            showMainMenu();
+            updateBackButton();
+        });
+    </script>
 </body>
 </html>
-
