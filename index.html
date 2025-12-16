@@ -658,4 +658,135 @@
                         <li style="margin-bottom: 10px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                                 <span>${getLanguageName(lang)}</span>
-                                <span>${count} слов (${percentage}%)
+                                <span>${count} слов (${percentage}%)</span>
+                            </div>
+                            <div style="background: #f0f0f0; border-radius: 5px; height: 10px;">
+                                <div style="background: #667eea; width: ${percentage}%; height: 100%; border-radius: 5px;"></div>
+                            </div>
+                        </li>
+                    `;
+                }
+                chartHTML += '</ul>';
+                languagesChart.innerHTML = chartHTML;
+            } else {
+                languagesChart.innerHTML = '<p style="text-align: center; color: #666;">Нет данных по языкам</p>';
+            }
+        }
+        
+        // Отправить форму добавления слова
+        async function submitWordForm(event) {
+            event.preventDefault();
+            
+            const word = document.getElementById('word').value.trim();
+            const translation = document.getElementById('translation').value.trim();
+            
+            if (!word || !translation) {
+                showError('Пожалуйста, заполните обязательные поля');
+                return;
+            }
+            
+            const wordData = {
+                word: word,
+                translation: translation,
+                example: document.getElementById('example').value.trim(),
+                part_of_speech: document.getElementById('partOfSpeech').value,
+                language: document.getElementById('language').value,
+                difficulty: parseInt(document.getElementById('difficulty').value),
+                chat_id: currentUser ? currentUser.id : 0
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/words`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(wordData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Слово успешно добавлено!');
+                    
+                    // Очищаем форму
+                    document.getElementById('wordForm').reset();
+                    
+                    // Переходим к списку слов через 1 секунду
+                    setTimeout(() => {
+                        showTab('words');
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Ошибка при добавлении слова');
+                }
+            } catch (error) {
+                showError('Не удалось добавить слово');
+                console.error('Ошибка:', error);
+            }
+        }
+        
+        // Вспомогательные функции
+        function getPartOfSpeechName(part) {
+            const names = {
+                'noun': 'Существительное',
+                'verb': 'Глагол',
+                'adjective': 'Прилагательное',
+                'adverb': 'Наречие',
+                'pronoun': 'Местоимение',
+                'preposition': 'Предлог'
+            };
+            return names[part] || part;
+        }
+        
+        function getLanguageName(code) {
+            const names = {
+                'EN': 'Английский',
+                'ES': 'Испанский',
+                'DE': 'Немецкий',
+                'FR': 'Французский'
+            };
+            return names[code] || code;
+        }
+        
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.className = 'message success';
+            el.style.display = 'block';
+            
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 3000);
+        }
+        
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.className = 'message error';
+            el.style.display = 'block';
+        }
+        
+        function showLoading(elementId) {
+            document.getElementById(elementId).style.display = 'block';
+        }
+        
+        function hideLoading(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+        
+        function showElement(elementId) {
+            document.getElementById(elementId).style.display = 'block';
+        }
+        
+        function hideElement(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            hideLoading('globalLoading');
+            loadWords();
+        });
+    </script>
+</body>
+</html>
